@@ -5,7 +5,7 @@ app = Flask('yarmarka')
 
 @app.route('/question', methods=['GET', 'POST'])
 def question():
-    return jsonify({
+    resp = jsonify({
         'question': (
             'Здравствуй! Я Владик, давай познакомимся!'
             ' Мне 160 лет, а тебе?'
@@ -17,3 +17,5 @@ def question():
             '50-160',
         ],
     })
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
