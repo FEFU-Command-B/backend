@@ -21,6 +21,29 @@ def question():
     return resp
 
 
+@app.route('/question/<option>', methods=['GET', 'POST'])
+def question_answer(option):
+    if option in ['0-17', '18-30', '30-50', '50-160']:
+        resp = jsonify({
+            'question': (
+                'Расскажи о цели своего визита, мне очень хочется,'
+                ' чтобы я тебе понравился!'
+            ),
+            'options': [
+                'путешествие с семьей',
+                'отдых',
+                'командировка',
+            ],
+        })
+    else:
+        resp = jsonify({
+            'question': None
+        })
+
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
 @app.route('/route', methods=['GET', 'POST'])
 def route():
     resp = jsonify({
