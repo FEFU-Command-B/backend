@@ -2,13 +2,24 @@ from flask import Flask, jsonify
 from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData
 import urllib
 import os
+import pyodbc
+
+
+
+cnxn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=tcp:projectdbb.database.windows.net,1433;Database=vladikdb;Uid=malashin.mp;Pwd=1234QWer;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
+cursor = cnxn.cursor()
+cursor.execute("select @@VERSION")
+row = cursor.fetchone()
+if row:
+    print(row)
 
 #params = urllib.parse.quote_plus(os.environ['constr2'])
 #conn_str = 'mssql+pyodbc:///?odbc_connect={}'.format(params)
 #engine = create_engine(conn_str, echo=True)
 #meta = MetaData()
 
-#print('connection is ok')
+
+print('connection is ok')
 
 #print(os.environ['constr'])
 
@@ -20,10 +31,10 @@ import os
 #)
 #meta.create_all(engine)
 
-q = """
-SELECT count(*) FROM places
-"""
-#res = engine.connect().execute(q)
+#q = """
+#SELECT count(*) FROM places
+#"""
+#//res = engine.connect().execute(q)
 
 #print(res)
 
