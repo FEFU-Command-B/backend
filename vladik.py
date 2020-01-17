@@ -3,17 +3,25 @@ from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData
 import urllib
 import os
 
-engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(urllib.parse.quote_plus(os.environ['constr'])),
-                       echo=True)
-engine.connect()
-
-print('connection is ok')
-print(engine)
-
-# res = engine.connect().execute('select @@VERSION')
-
+status = 'none'
+try:
+    engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(urllib.parse.quote_plus(os.environ['constr'])),
+                           echo=True)
+    engine.connect()
+except Exception:
+    print('connection error')
+    status = 'error'
+else:
+    print('connection is ok')
+    status = engine.execute('select @@VERSION')
 
 app = Flask('vladik', static_url_path='/static')
+
+
+@app.route('/connection', methods=['GET', 'POST'])
+def connection():
+    resp = jsonify({'connection': str(status)})
+    return resp
 
 
 @app.route('/question', methods=['GET', 'POST'])
