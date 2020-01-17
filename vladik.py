@@ -1,9 +1,11 @@
+import urllib
+import os
+from contextlib import suppress
+
 from flask import Flask, jsonify, request
 from sqlalchemy import create_engine, Table, Column, Integer, String, Float, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-import urllib
-import os
 
 status = 'none'
 try:
@@ -99,7 +101,8 @@ def get_question(question_name):
 
 
 def set_headers(resp):
-    resp.headers['Access-Control-Allow-Origin'] = request.environ['HTTP_ORIGIN']
+    with suppress(KeyError):
+        resp.headers['Access-Control-Allow-Origin'] = request.environ['HTTP_ORIGIN']
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
 
 
