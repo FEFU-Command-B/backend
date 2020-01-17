@@ -18,6 +18,11 @@ else:
 app = Flask('vladik', static_url_path='/static')
 
 
+def set_headers(resp):
+    resp.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    resp.headers['Access-Control-Allow-Credentials'] = 'true'
+
+
 @app.route('/connection', methods=['GET', 'POST'])
 def connection():
     resp = jsonify({'connection': str(status)})
@@ -39,7 +44,7 @@ def question():
             '50-160',
         ],
     })
-    resp.headers['Access-Control-Allow-Origin'] = '*'
+    set_headers(resp)
     return resp
 
 
@@ -63,7 +68,7 @@ def question_answer(option):
             'question': None
         })
 
-    resp.headers['Access-Control-Allow-Origin'] = '*'
+    set_headers(resp)
     return resp
 
 
@@ -89,7 +94,7 @@ def route():
             },
         ],
     })
-    resp.headers['Access-Control-Allow-Origin'] = '*'
+    set_headers(resp)
     return resp
 
 
@@ -97,8 +102,7 @@ def route():
 def cookie_test_get(option):
     cc = request.cookies.get(option)
     resp = jsonify({option: cc})
-    resp.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-    resp.headers['Access-Control-Allow-Credentials'] = 'true'
+    set_headers(resp)
     return resp
 
 
@@ -106,6 +110,5 @@ def cookie_test_get(option):
 def cookie_test_set(option):
     resp = jsonify({})
     resp.set_cookie(option, 'test123')
-    resp.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-    resp.headers['Access-Control-Allow-Credentials'] = 'true'
+    set_headers(resp)
     return resp
