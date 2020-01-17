@@ -44,22 +44,22 @@ class Place(Base):
 Base.metadata.create_all(engine)
 
 
-def get_place(start, end, type, exclude_tag, visited):
+def get_place(start, end, _type, exclude_tag, visited):
     query = dbsession.query(Place) \
-        .filter_by(Place.type == type) \
-        .filter_by(Place.opening_time <= start) \
-        .filter_by(Place.closing_time >= end) \
-        .filter_by(~Place.id.in_(visited))
+        .filter_by(type=_type) \
+        .filter(Place.opening_time <= start) \
+        .filter(Place.closing_time >= end) \
+        .filter(~Place.id.in_(visited))
 
     if exclude_tag:
-        query = query.filter_by(~Place.tags.like(exclude_tag))
+        query = query.filter(~Place.tags.like(exclude_tag))
 
     return query.first()
 
 
 def set_headers(resp):
     resp.headers['Access-Control-Allow-Origin'] = request.environ.get('HTTP_ORIGIN')
-    # print(request.environ.get('HTTP_ORIGIN'))
+    print(request.environ.get('HTTP_ORIGIN'))
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
     return resp
 
@@ -130,18 +130,18 @@ def question_answer(option):
 
     if current_question == 'age':
         resp = get_question('museum')
-        resp.set_cookie('over 18', 'больше' in option)
+        resp.set_cookie('over 18', str('больше' in option))
         resp.set_cookie('current question', 'museum')
 
     elif current_question == 'museum':
         resp = get_question('company')
-        resp.set_cookie('museum', 'Да' in option)
+        resp.set_cookie('museum', str('Да' in option))
         resp.set_cookie('current question', 'company')
 
     elif current_question == 'company':
         resp = get_question(None)
-        resp.set_cookie('family', 'семьёй' in option)
-        resp.set_cookie('current question', None)
+        resp.set_cookie('family', str('семьёй' in option))
+        resp.set_cookie('current question', str(None))
 
     else:
         resp = get_question(None)
@@ -151,8 +151,8 @@ def question_answer(option):
 
 @app.route('/route', methods=['GET', 'POST'])
 def route():
-    can_drink = request.cookies['over 18'] == 'True' and request.cookies['family'] == 'False'
-    if request.cookies['museum'] == 'True':
+    can_drink = request.cookies.get('over 18') == 'True' and request.cookies.get('family') == 'False'
+    if request.cookies.get('museum') == 'True':
         schedule = (
             (9, 10, 'walk', None),
             (10, 11, 'food', 'alcohol'),
