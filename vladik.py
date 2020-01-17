@@ -102,7 +102,7 @@ def get_question(question_name):
 
 def set_headers(resp):
     with suppress(KeyError):
-        resp.headers['Access-Control-Allow-Origin'] = request.environ['HTTP_ORIGIN']
+        resp.headers['Access-Control-Allow-Origin'] = request.environ.get('HTTP_ORIGIN')
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
 
 
