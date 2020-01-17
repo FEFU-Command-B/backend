@@ -26,6 +26,7 @@ app = Flask('vladik', static_url_path='/static')
 
 Base = declarative_base()
 
+
 class Place(Base):
     __tablename__ = 'places'
 
@@ -39,20 +40,29 @@ class Place(Base):
     opening_time = Column(Float)
     closing_time = Column(Float)
 
+
 Base.metadata.create_all(engine)
 
 
 def get_place(start, end, type, exclude_tag, visited):
-    query = dbsession.query(Place)\
-        .filter_by(Place.type == type)\
-        .filter_by(Place.opening_time <= start)\
-        .filter_by(Place.closing_time >= end)\
+    query = dbsession.query(Place) \
+        .filter_by(Place.type == type) \
+        .filter_by(Place.opening_time <= start) \
+        .filter_by(Place.closing_time >= end) \
         .filter_by(~Place.id.in_(visited))
 
     if exclude_tag:
         query = query.filter_by(~Place.tags.like(exclude_tag))
 
     return query.first()
+
+
+def set_headers(resp):
+    resp.headers['Access-Control-Allow-Origin'] = request.environ.get('HTTP_ORIGIN')
+    # print(request.environ.get('HTTP_ORIGIN'))
+    resp.headers['Access-Control-Allow-Credentials'] = 'true'
+    return resp
+
 
 def get_question(question_name):
     if question_name == 'age':
@@ -96,20 +106,14 @@ def get_question(question_name):
         resp = jsonify({
             'question': None
         })
-
     return resp
-
-
-def set_headers(resp):
-    with suppress(KeyError):
-        resp.headers['Access-Control-Allow-Origin'] = request.environ.get('HTTP_ORIGIN')
-    resp.headers['Access-Control-Allow-Credentials'] = 'true'
 
 
 @app.route('/connection', methods=['GET', 'POST'])
 def connection():
     resp = jsonify({'connection': str(status)})
-    return resp
+
+    return set_headers(resp)
 
 
 @app.route('/question', methods=['GET', 'POST'])
@@ -117,8 +121,7 @@ def question():
     current_question = request.cookies.get('current question', 'age')
     resp = get_question(current_question)
     resp.set_cookie('current question', 'age')
-    set_headers(resp)
-    return resp
+    return set_headers(resp)
 
 
 @app.route('/question/<option>', methods=['GET', 'POST'])
@@ -143,8 +146,7 @@ def question_answer(option):
     else:
         resp = get_question(None)
 
-    set_headers(resp)
-    return resp
+    return set_headers(resp)
 
 
 @app.route('/route', methods=['GET', 'POST'])
@@ -188,5 +190,5 @@ def route():
     resp = jsonify({
         'route': route,
     })
-    set_headers(resp)
-    return resp
+
+    return set_headers(resp)
