@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData
 import urllib
 import os
@@ -90,4 +90,18 @@ def route():
         ],
     })
     resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
+@app.route('/cookieTest/get/<option>', methods=['GET', 'POST'])
+def cookie_test_get(option):
+    cc = request.cookies.get(option)
+    resp = jsonify({option: cc})
+    return resp
+
+
+@app.route('/cookieTest/set/<option>', methods=['GET', 'POST'])
+def cookie_test_set(option):
+    resp = jsonify({})
+    resp.set_cookie(option, 'test123')
     return resp
