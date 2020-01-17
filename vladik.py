@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
-from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData
+from sqlalchemy import create_engine, Table, Column, Integer, String, Time, MetaData
+from sqlalchemy.ext.declarative import declarative_base
 import urllib
 import os
 
@@ -16,6 +17,24 @@ else:
     status = engine.execute('select @@VERSION')
 
 app = Flask('vladik', static_url_path='/static')
+
+
+
+Base = declarative_base()
+
+
+class Place(Base):
+    __tablename__ = 'places'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    description = Column(String)
+    location = Column(String, nullable=False)
+    img = Column(String, nullable=False)
+    type = Column(String, nullable=False)
+    tags = Column(String)
+    opening_time = Column(Time)
+    closing_time = Column(Time)
 
 
 def set_headers(resp):
