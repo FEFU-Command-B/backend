@@ -52,6 +52,51 @@ def get_place(start, end, type, exclude_tag, visited):
 
     return query.first()
 
+def get_question(question_name):
+    if question_name == 'age':
+        resp = jsonify({
+            'question': (
+                'Привет, я Владик! Давай познакомимся?'
+                ' Мне 160 лет, а тебе?'
+            ),
+            'options': [
+                'Мне меньше 18',
+                'Мне больше 18',
+            ],
+        })
+
+    elif question_name == 'museum':
+        resp = jsonify({
+            'question': (
+                'Отлично! Какой тип отдыза тебе по душе? Ты любишь'
+                ' музеи? Я от них без ума!'
+            ),
+            'options': [
+                'Да',
+                'Нет',
+            ],
+        })
+
+    elif question_name == 'company':
+        resp = jsonify({
+            'question': (
+                'Мне ояень нравится узнавать тебя лучше! Я хочу узнать, с'
+                ' кем ты приехал ко мне в гости?'
+            ),
+            'options': [
+                'Я тут один',
+                'Я приехал с семьёй',
+                'Я путешествую с друзьями / второй половинкой',
+            ],
+        })
+
+    else:
+        resp = jsonify({
+            'question': None
+        })
+
+    return resp
+
 
 def set_headers(resp):
     resp.headers['Access-Control-Allow-Origin'] = request.environ['HTTP_ORIGIN']
@@ -66,17 +111,8 @@ def connection():
 
 @app.route('/question', methods=['GET', 'POST'])
 def question():
-    resp = jsonify({
-        'id': 0,
-        'question': (
-            'Привет, я Владик! Давай познакомимся?'
-            ' Мне 160 лет, а тебе?'
-        ),
-        'options': [
-            'Мне меньше 18',
-            'Мне больше 18',
-        ],
-    })
+    current_question = request.cookies.get('current question', 'age')
+    resp = get_question(current_question)
     resp.set_cookie('current question', 'age')
     set_headers(resp)
     return resp
@@ -87,45 +123,22 @@ def question_answer(option):
     current_question = request.cookies['current question']
 
     if current_question == 'age':
-        resp = jsonify({
-            'question': (
-                'Отлично! Какой тип отдыза тебе по душе? Ты любишь'
-                ' музеи? Я от них без ума!'
-            ),
-            'options': [
-                'Да',
-                'Нет',
-            ],
-        })
+        resp = get_question('museum')
         resp.set_cookie('over 18', 'больше' in option)
         resp.set_cookie('current question', 'museum')
 
     elif current_question == 'museum':
-        resp = jsonify({
-            'question': (
-                'Мне ояень нравится узнавать тебя лучше! Я хочу узнать, с'
-                ' кем ты приехал ко мне в гости?'
-            ),
-            'options': [
-                'Я тут один',
-                'Я приехал с семьёй',
-                'Я путешествую с друзьями / второй половинкой',
-            ],
-        })
+        resp = get_question('company')
         resp.set_cookie('museum', 'Да' in option)
         resp.set_cookie('current question', 'company')
 
     elif current_question == 'company':
-        resp = jsonify({
-            'question': None
-        })
+        resp = get_question(None)
         resp.set_cookie('family', 'семьёй' in option)
         resp.set_cookie('current question', None)
 
     else:
-        resp = jsonify({
-            'question': None
-        })
+        resp = get_question(None)
 
     set_headers(resp)
     return resp
