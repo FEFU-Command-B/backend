@@ -97,7 +97,7 @@ def route():
 def cookie_test_get(option):
     cc = request.cookies.get(option)
     resp = jsonify({option: cc})
-    resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.headers['Access-Control-Allow-Origin'] = 'localhost'
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
     return resp
 
@@ -106,6 +106,6 @@ def cookie_test_get(option):
 def cookie_test_set(option):
     resp = jsonify({})
     resp.set_cookie(option, 'test123')
-    resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.headers['Access-Control-Allow-Origin'] = 'localhost'
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
     return resp
