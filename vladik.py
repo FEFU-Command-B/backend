@@ -54,7 +54,7 @@ def get_place(start, end, type, exclude_tag, visited):
 
 
 def set_headers(resp):
-    resp.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    resp.headers['Access-Control-Allow-Origin'] = request.environ['HTTP_ORIGIN']
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
 
 
