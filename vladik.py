@@ -121,6 +121,7 @@ def question_answer(option):
         })
         resp.set_cookie('family', 'семьёй' in option)
         resp.set_cookie('current question', None)
+
     else:
         resp = jsonify({
             'question': None
@@ -156,6 +157,8 @@ def route():
     visited = []
     for args in schedule:
         place = get_place(*args, visited)
+        if place is None:
+            continue
         visited.append(place.id)
         route.append({
             'name': place.name,
