@@ -88,7 +88,7 @@ def get_question(question_name):
             'options': [
                 'Я тут один',
                 'Я приехал с семьёй',
-                'Я путешествую с друзьями / второй половинкой',
+                'Я путешествую с друзьями или второй половинкой',
             ],
         })
 
@@ -126,18 +126,18 @@ def question_answer(option):
     current_question = request.cookies['current question']
 
     if current_question == 'age':
-        resp = get_question('museum')
         resp.set_cookie('over 18', 'больше' in option)
+        resp = get_question('museum')
         resp.set_cookie('current question', 'museum')
 
     elif current_question == 'museum':
-        resp = get_question('company')
         resp.set_cookie('museum', 'Да' in option)
+        resp = get_question('company')
         resp.set_cookie('current question', 'company')
 
     elif current_question == 'company':
-        resp = get_question(None)
         resp.set_cookie('family', 'семьёй' in option)
+        resp = get_question(None)
         resp.set_cookie('current question', None)
 
     else:
