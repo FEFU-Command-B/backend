@@ -7,6 +7,8 @@ from sqlalchemy import create_engine, Table, Column, Integer, String, Float, Met
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
+import data
+
 status = 'none'
 try:
     engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(urllib.parse.quote_plus(os.environ['constr'])),
