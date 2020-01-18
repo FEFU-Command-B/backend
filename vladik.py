@@ -172,39 +172,15 @@ def question_answer(option):
 def route():
     can_drink = request.cookies.get('over 18') == 'True' and request.cookies.get('family') == 'False'
     if request.cookies.get('museum') == 'True':
-        schedule = (
-            (9, 10, 'walk', None),
-            (10, 11, 'food', 'alcohol'),
-            (11, 14, 'museum', None),
-            (14, 15, 'walk', None),
-            (15, 18, 'museum', None),
-            (18, 20, 'food', None if can_drink else 'alcohol'),
-        )
+        if can_drink:
+            route = data.museumyes
+        else:
+            route = data.museumno
     else:
-        schedule = (
-            (9, 10, 'walk', None),
-            (10, 11, 'food', 'alcohol'),
-            (11, 14, 'entartainment', None),
-            (14, 15, 'walk', None),
-            (15, 18, 'entertainment', None),
-            (18, 20, 'food', None if can_drink else 'alcohol'),
-        )
-
-    route = []
-    visited = []
-    for args in schedule:
-        place = get_place(*args, visited)
-        if place is None:
-            continue
-        visited.append(place.id)
-        route.append({
-            'name': place.name,
-            'location': place.location,
-            'time': f'{args[0]}:00-{args[1]}:00',
-            'description': place.description,
-            'img': place.img,
-            'tags': place.tags.split()
-        })
+        if can_drink:
+            route = data.nomuseumyes
+        else:
+            route = data.nomuseumno
 
     resp = jsonify({
         'route': route,
