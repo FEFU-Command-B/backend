@@ -26,6 +26,7 @@ app = Flask('vladik', static_url_path='/static')
 
 Base = declarative_base()
 
+
 class Place(Base):
     __tablename__ = 'places'
 
@@ -39,20 +40,28 @@ class Place(Base):
     opening_time = Column(Float)
     closing_time = Column(Float)
 
+
 Base.metadata.create_all(engine)
 
 
-def get_place(start, end, type, exclude_tag, visited):
-    query = dbsession.query(Place)\
-        .filter_by(Place.type == type)\
-        .filter_by(Place.opening_time <= start)\
-        .filter_by(Place.closing_time >= end)\
-        .filter_by(~Place.id.in_(visited))
+def get_place(start, end, _type, exclude_tag, visited):
+    query = dbsession.query(Place) \
+        .filter_by(type=_type) \
+        .filter(Place.opening_time <= start) \
+        .filter(Place.closing_time >= end) \
+        .filter(~Place.id.in_(visited))
 
     if exclude_tag:
-        query = query.filter_by(~Place.tags.like(exclude_tag))
+        query = query.filter(~Place.tags.like(exclude_tag))
 
     return query.first()
+
+
+def set_headers(resp):
+    resp.headers['Access-Control-Allow-Origin'] = request.environ.get('HTTP_ORIGIN', 'localhost:3000')
+    resp.headers['Access-Control-Allow-Credentials'] = 'true'
+    return resp
+
 
 def get_question(question_name):
     if question_name == 'age':
@@ -70,7 +79,7 @@ def get_question(question_name):
     elif question_name == 'museum':
         resp = jsonify({
             'question': (
-                'Отлично! Какой тип отдыза тебе по душе? Ты любишь'
+                'Отлично! Какой тип отдыха тебе по душе? Ты любишь'
                 ' музеи? Я от них без ума!'
             ),
             'options': [
@@ -82,7 +91,7 @@ def get_question(question_name):
     elif question_name == 'company':
         resp = jsonify({
             'question': (
-                'Мне ояень нравится узнавать тебя лучше! Я хочу узнать, с'
+                'Мне очень нравится узнавать тебя лучше! Я хочу узнать, с'
                 ' кем ты приехал ко мне в гости?'
             ),
             'options': [
@@ -96,20 +105,14 @@ def get_question(question_name):
         resp = jsonify({
             'question': None
         })
-
     return resp
-
-
-def set_headers(resp):
-    with suppress(KeyError):
-        resp.headers['Access-Control-Allow-Origin'] = request.environ['HTTP_ORIGIN']
-    resp.headers['Access-Control-Allow-Credentials'] = 'true'
 
 
 @app.route('/connection', methods=['GET', 'POST'])
 def connection():
     resp = jsonify({'connection': str(status)})
-    return resp
+
+    return set_headers(resp)
 
 
 @app.route('/question', methods=['GET', 'POST'])
@@ -117,8 +120,7 @@ def question():
     current_question = request.cookies.get('current question', 'age')
     resp = get_question(current_question)
     resp.set_cookie('current question', 'age')
-    set_headers(resp)
-    return resp
+    return set_headers(resp)
 
 
 @app.route('/question/<option>', methods=['GET', 'POST'])
@@ -126,31 +128,30 @@ def question_answer(option):
     current_question = request.cookies['current question']
 
     if current_question == 'age':
-        resp.set_cookie('over 18', 'больше' in option)
         resp = get_question('museum')
+        resp.set_cookie('over 18', str('больше' in option))
         resp.set_cookie('current question', 'museum')
 
     elif current_question == 'museum':
-        resp.set_cookie('museum', 'Да' in option)
         resp = get_question('company')
+        resp.set_cookie('museum', str('Да' in option))
         resp.set_cookie('current question', 'company')
 
     elif current_question == 'company':
-        resp.set_cookie('family', 'семьёй' in option)
         resp = get_question(None)
-        resp.set_cookie('current question', None)
+        resp.set_cookie('family', str('семьёй' in option))
+        resp.set_cookie('current question', str(None))
 
     else:
         resp = get_question(None)
 
-    set_headers(resp)
-    return resp
+    return set_headers(resp)
 
 
 @app.route('/route', methods=['GET', 'POST'])
 def route():
-    can_drink = request.cookies['over 18'] == 'True' and request.cookies['family'] == 'False'
-    if request.cookies['museum'] == 'True':
+    can_drink = request.cookies.get('over 18') == 'True' and request.cookies.get('family') == 'False'
+    if request.cookies.get('museum') == 'True':
         schedule = (
             (9, 10, 'walk', None),
             (10, 11, 'food', 'alcohol'),
@@ -188,5 +189,5 @@ def route():
     resp = jsonify({
         'route': route,
     })
-    set_headers(resp)
-    return resp
+
+    return set_headers(resp)
