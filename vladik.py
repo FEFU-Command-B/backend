@@ -3,8 +3,8 @@ import os
 from contextlib import suppress
 
 from flask import Flask, jsonify, request
-from sqlalchemy import create_engine, Table, Column, Integer, String, Float, MetaData
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, Table, Column, Integer, String, Float, MetaData, ForeignKey
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 status = 'none'
@@ -25,6 +25,24 @@ else:
 app = Flask('vladik', static_url_path='/static')
 
 Base = declarative_base()
+
+class Route(Base):
+    __tablename__ = 'routes'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    entries = relationship("RouteEntry", backref="route")
+
+
+class RouteEntry(Base):
+    __tablename__ = 'routeentries'
+
+    id = Column(Integer, primary_key=True)
+    route_id = Column(Integer, ForeignKey('routes.id'))
+    type = Column(String, nullable=False)
+    exclude_tags = Column(String)
+    start = Column(Float)
+    end = Column(Float)
 
 
 class Place(Base):
